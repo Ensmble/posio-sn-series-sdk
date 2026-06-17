@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.posio.printersdk.sample'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.posio.printersdk.sample'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'posio_demo'
+            keyPassword '111111'
+            storeFile file('../key/posio_demo.jks')
+            storePassword '111111'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation project(':printer-sdk')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
+    // In-app camera scanner (QR + 1D barcodes), independent of the device's scanner app.
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+}

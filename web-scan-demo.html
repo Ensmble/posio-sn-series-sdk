@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Posio 2D scanner — web demo (long-poll)</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 24px; max-width: 640px; }
+        input, button { font-size: 16px; padding: 8px 12px; }
+        input { width: 280px; }
+        button { margin: 4px 6px 4px 0; cursor: pointer; }
+        #status { font-weight: bold; }
+        .ok { color: #1a7f37; } .bad { color: #b3261e; }
+        ul { font-size: 18px; padding-left: 20px; } li { margin: 4px 0; word-break: break-all; }
+        code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+<h2>Posio 2D scanner — web demo</h2>
+
+<p>
+    Device URL:
+    <input id="base" value="http://192.168.1.50:8080"/>
+    <button id="start">Start scanning</button>
+    <button id="stop">Stop</button>
+</p>
+<p id="status" class="bad">Idle</p>
+
+<h3>Scans</h3>
+<ul id="scans"></ul>
+
+<script>
+    // Reliable approach: continuously long-poll GET /scan, which arms the 2D scanner and
+    // returns the decoded value as soon as a barcode/QR is read. (SSE /scan/stream is not used
+    // because the embedded HTTP server doesn't flush stream chunks promptly.)
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $("status"), scansEl = $("scans");
+    let running = false;
+
+    const baseUrl = () => $("base").value.replace(/\/+$/, "");
+    const setStatus = (t, ok) => { statusEl.textContent = t; statusEl.className = ok ? "ok" : "bad"; };
+
+    function addScan(code) {
+        const li = document.createElement("li");
+        li.textContent = code + "   (" + new Date().toLocaleTimeString() + ")";
+        scansEl.prepend(li);
+    }
+
+    async function loop() {
+        while (running) {
+            try {
+                // trigger=true arms the 2D scanner each round; waits up to 30s for a read.
+                const r = await fetch(baseUrl() + "/scan?trigger=true&timeout=30000");
+                if (!r.ok) { setStatus("HTTP " + r.status + " — is the service running?", false); await sleep(1500); continue; }
+                const j = await r.json();
+                if (j.timedOut) {
+                    setStatus("Ready — present a barcode to the scanner", true);
+                } else {
+                    addScan(j.code);
+                    setStatus("Scanned ✓ — ready for the next", true);
+                }
+            } catch (e) {
+                setStatus("Cannot reach device: " + e.message, false);
+                await sleep(1500);
+            }
+        }
+    }
+
+    const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+    $("start").onclick = () => {
+        if (running) return;
+        running = true;
+        setStatus("Ready — present a barcode to the scanner", true);
+        loop();
+    };
+    $("stop").onclick = async () => {
+        running = false;
+        setStatus("Stopped", false);
+        try {
+            await fetch(baseUrl() + "/scan/trigger", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ open: false })
+            });
+        } catch (_) {}
+    };
+</script>
+</body>
+</html>

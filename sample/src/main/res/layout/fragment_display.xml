@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView style="@style/SectionHeader" android:text="Customer-display LCD"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="These controls only do something on devices that have a customer-facing LCD."/>
+
+        <Button android:id="@+id/btnLcdInit" style="@style/Cell" android:text="Init LCD"/>
+        <Button android:id="@+id/btnLcdWake" style="@style/Cell" android:text="Wake LCD"/>
+        <Button android:id="@+id/btnLcdSleep" style="@style/Cell" android:text="Sleep LCD"/>
+        <Button android:id="@+id/btnLcdClear" style="@style/Cell" android:text="Clear LCD"/>
+        <Button android:id="@+id/btnLcdReset" style="@style/Cell" android:text="Reset LCD"/>
+        <Button android:id="@+id/btnLcdBitmap" style="@style/Cell" android:text="Show sample bitmap"/>
+        <Button android:id="@+id/btnLcdLogo" style="@style/Cell" android:text="Set sample logo"/>
+
+    </LinearLayout>
+</ScrollView>

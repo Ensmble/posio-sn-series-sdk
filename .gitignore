@@ -1,0 +1,21 @@
+# Build output
+.gradle/
+build/
+*/build/
+
+# Local config (machine-specific SDK path)
+local.properties
+
+# Signing material — NEVER commit
+*.jks
+*.keystore
+
+# Prebuilt binaries — ignore build outputs, but keep the shipped APKs under apks/
+*.apk
+!apks/*.apk
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+captures/

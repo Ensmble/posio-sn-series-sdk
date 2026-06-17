@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Lets apps that include this SDK see and bind the Posio Printer Service on
+        Android 11+ (package visibility). Merged automatically into the host app,
+        so integrators don't need to add it themselves.
+    -->
+    <queries>
+        <package android:name="com.posio.printerservice"/>
+        <!-- Built-in camera scanner app (for PosioScanner.launchCameraScanner) -->
+        <package android:name="net.nyx.scanner"/>
+    </queries>
+
+</manifest>

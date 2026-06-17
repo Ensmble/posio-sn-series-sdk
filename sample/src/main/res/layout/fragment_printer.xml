@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView style="@style/SectionHeader" android:text="Text"/>
+
+        <EditText
+            android:id="@+id/etText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Text to print"
+            android:text="Hello from the Posio SDK!"
+            android:importantForAutofill="no"
+            android:inputType="text"/>
+
+        <EditText
+            android:id="@+id/etSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Text size (px)"
+            android:text="32"
+            android:importantForAutofill="no"
+            android:inputType="number"/>
+
+        <CheckBox android:id="@+id/cbCenter" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Center"/>
+        <CheckBox android:id="@+id/cbBold" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Bold"/>
+        <CheckBox android:id="@+id/cbUnderline" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Underline"/>
+
+        <Button android:id="@+id/btnPrintText" style="@style/Cell" android:text="Print text"/>
+        <Button android:id="@+id/btnPrintTextWidth" style="@style/Cell"
+            android:text="Print text (fixed width block)"/>
+        <Button android:id="@+id/btnReceipt" style="@style/Cell" android:text="Print sample receipt"/>
+
+        <TextView style="@style/SectionHeader" android:text="Barcode / QR"/>
+
+        <EditText
+            android:id="@+id/etBarcode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Barcode content"
+            android:text="123456789012"
+            android:importantForAutofill="no"
+            android:inputType="text"/>
+        <Button android:id="@+id/btnBarcode" style="@style/Cell" android:text="Print barcode (CODE128)"/>
+
+        <EditText
+            android:id="@+id/etQr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="QR content"
+            android:text="https://posio.example/r/1001"
+            android:importantForAutofill="no"
+            android:inputType="text"/>
+        <Button android:id="@+id/btnQr" style="@style/Cell" android:text="Print QR code"/>
+
+        <TextView style="@style/SectionHeader" android:text="Image / Table / Raw"/>
+
+        <Button android:id="@+id/btnImage" style="@style/Cell" android:text="Print sample image"/>
+        <Button android:id="@+id/btnPickImage" style="@style/Cell" android:text="Pick image from device &amp; print"/>
+        <Button android:id="@+id/btnTable" style="@style/Cell" android:text="Print sample table row"/>
+        <Button android:id="@+id/btnEscpos" style="@style/Cell" android:text="Print raw ESC/POS"/>
+
+        <TextView style="@style/SectionHeader" android:text="Paper"/>
+
+        <EditText
+            android:id="@+id/etFeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Feed amount (px)"
+            android:text="48"
+            android:importantForAutofill="no"
+            android:inputType="number"/>
+        <Button android:id="@+id/btnFeed" style="@style/Cell" android:text="Feed paper"/>
+        <Button android:id="@+id/btnBack" style="@style/Cell" android:text="Paper back"/>
+        <Button android:id="@+id/btnCut" style="@style/Cell" android:text="Cut paper / auto-out"/>
+
+        <TextView style="@style/SectionHeader" android:text="Labels"/>
+
+        <Button android:id="@+id/btnLabelDetect" style="@style/Cell" android:text="Detect labels (learn)"/>
+        <Button android:id="@+id/btnLabelHas" style="@style/Cell" android:text="Has label learning?"/>
+        <Button android:id="@+id/btnLabelLocate" style="@style/Cell" android:text="Locate label"/>
+        <Button android:id="@+id/btnLabelLocateAuto" style="@style/Cell" android:text="Locate label (auto)"/>
+        <Button android:id="@+id/btnLabelEnd" style="@style/Cell" android:text="End label"/>
+        <Button android:id="@+id/btnLabelClear" style="@style/Cell" android:text="Clear label learning"/>
+
+    </LinearLayout>
+</ScrollView>
