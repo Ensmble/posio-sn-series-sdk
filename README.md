@@ -133,6 +133,9 @@ every character has the same width, so columns line up. For your own typeface, u
 `fmt.setFont(5)` and `fmt.setPath("/sdcard/.../myfont.ttf")`. Other knobs: `setTextScaleX/Y`,
 `setLetterSpacing`, `setLineSpacing`.
 
+Monospace is also selectable over the **HTTP API** — pass `"font": 4` on a `text` job or
+`/print/text` (same `0`–`5` values as `setFont`). See [HOW_TO_USE.md](HOW_TO_USE.md) §4b.
+
 ### Printing images
 
 ```java
@@ -149,6 +152,11 @@ printer.printImage(bitmap, 0, 1);   // bitmap, type, align
 - **`align`** — `0` left, `1` center, `2` right.
 - **Width** — keep the image within the printer's dot width so it isn't scaled down:
   **≈384 px for 58 mm** paper, **≈576 px for 80 mm** paper. Height is unlimited.
+- **Crop blank margins** — the printer prints every row/column of the bitmap, so any
+  white/transparent border baked into the source (a logo on a tall canvas, a QR with a wide
+  quiet-zone, a padded signature) prints as **extra blank space**. Trim the image to its
+  content first. The sample app shows this: `trimBlankMargins(...)` in
+  [`PrinterFragment.java`](sample/src/main/java/com/posio/printersdk/sample/PrinterFragment.java).
 
 > Right format in short: a **PNG**, sized to the paper width (e.g. 384 px wide for 58 mm),
 > pure black-and-white, printed with `type = 0`.
