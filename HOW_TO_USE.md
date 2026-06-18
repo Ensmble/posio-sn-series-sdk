@@ -112,13 +112,16 @@ character is the same width. Set `"font": 4` on a `text` job (or on `/print/text
 ```
 
 `font` values: `0` DEFAULT · `1` DEFAULT_BOLD · `2` SANS_SERIF · `3` SERIF ·
-**`4` MONOSPACE** · `5` CUSTOM. Default is `0`.
+**`4` MONOSPACE**. Default is `0`. (Value `5` CUSTOM needs a `.ttf` file path, which can't be
+supplied over HTTP — use it from the Android SDK instead. Unknown values fall back to `0`.)
 
-**Workarounds if your service build doesn't yet support `font`** (no update required):
+> Requires the **Posio Printer Service** that ships with this SDK (`apks/PosioPrinterService.apk`)
+> or newer. On an older service install the `font` field is ignored (text still prints in the
+> default font). The two fallbacks below need no service update:
 
 1. **Pre-aligned text** — pad columns with spaces on your side so they line up, and send
    plain `text` jobs. Keep lines to ~32 characters on 58 mm paper (~48 on 80 mm) at the
-   default size. Simplest option, works today.
+   default size.
 2. **Raw ESC/POS** — send an `escpos` job (or `POST /print/escpos`) with Base64-encoded
    ESC/POS bytes that select the printer's built-in fixed-width font, followed by your text.
    Use this when you specifically want a hardware monospace font.
