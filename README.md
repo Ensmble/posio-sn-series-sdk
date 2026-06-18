@@ -134,7 +134,8 @@ every character has the same width, so columns line up. For your own typeface, u
 `setLetterSpacing`, `setLineSpacing`.
 
 Monospace is also selectable over the **HTTP API** — pass `"font": 4` on a `text` job or
-`/print/text` (same `0`–`5` values as `setFont`). See [HOW_TO_USE.md](HOW_TO_USE.md) §4b.
+`/print/text` (values `0`–`4`, same as `setFont`; `5` CUSTOM is SDK-only as it needs a font
+path). See [HOW_TO_USE.md](HOW_TO_USE.md) §4b.
 
 ### Printing images
 
