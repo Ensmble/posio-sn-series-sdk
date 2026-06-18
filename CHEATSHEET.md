@@ -41,7 +41,7 @@ curl -X POST http://<device-ip>:8080/print/receipt \
 
 | `type` | Fields (defaults) | Notes |
 |--------|-------------------|-------|
-| `text` | `text`, `size`(24), `align`(`left`), `bold`(false), `underline`(false) | One line. `align`: `left`/`center`/`right`. |
+| `text` | `text`, `size`(24), `align`(`left`), `bold`(false), `underline`(false), `font`(0) | One line. `align`: `left`/`center`/`right`. `font`: 0–5 (**4 MONOSPACE**). |
 | `feed` | `lines` *or* `px` | Blank space. `lines` × 24 px if `px` omitted. |
 | `barcode` | `content`, `width`(300), `height`(120), `textPosition`(0), `align`(`center`), `symbology`(0) | 1D barcode. See tables below. |
 | `qrcode` | `content`, `size`(300), `align`(`center`) | `size` = width & height in px. |
@@ -53,7 +53,7 @@ curl -X POST http://<device-ip>:8080/print/receipt \
 
 | Method & path | Body |
 |---|---|
-| `POST /print/text` | plain text, or `{text,size,align,bold,underline}` |
+| `POST /print/text` | plain text, or `{text,size,align,bold,underline,font}` |
 | `POST /print/image` | `{base64,type,align}` |
 | `POST /print/escpos` | `{base64}` |
 | `GET /status` | — (printer connection + status) |
@@ -127,6 +127,9 @@ printer.cutPaper();
 
 **Alignment** — `0` left · `1` center · `2` right (JSON: `"left"`/`"center"`/`"right"`).
 
+**Font** (`setFont` / JSON `font`) — `0` DEFAULT · `1` DEFAULT_BOLD · `2` SANS_SERIF ·
+`3` SERIF · **`4` MONOSPACE** · `5` CUSTOM (SDK: pair with `setPath(".ttf")`).
+
 **Barcode symbology** — `0` CODE128 · `1` CODE39 · `2` CODE93 · `3` UPC‑A · `4` UPC‑E ·
 `5` EAN13 · `6` EAN8 · `7` ITF · `8` CODABAR.
 
@@ -145,9 +148,11 @@ printer.cutPaper();
 
 - **Line width:** ~**32 characters** per line on 58 mm paper (~**48** on 80 mm) at the
   default text size. Use a `"--------------------------------"` separator to gauge width.
-- **Columns:** use **monospace** (`setFont(4)`) or `printTableRow(...)` so prices line up.
+- **Columns:** use **monospace** so prices line up — SDK `setFont(4)` / `printTableRow(...)`,
+  or HTTP `"font":4` on a `text` job. No-`font` fallback: pad columns with spaces.
 - **Logos/images:** PNG, pure black‑on‑white, width ≤ the printer dots — **≈384 px (58 mm)**,
-  **≈576 px (80 mm)**. Height is unlimited.
+  **≈576 px (80 mm)**. Height is unlimited. **Crop blank margins first** — the printer prints
+  every blank row/column, so whitespace baked into a logo/QR/signature prints as extra space.
 - **QR:** keep `size` ≈ 240–360 px so it scans reliably; center it.
 - **Spacing:** use `feed` (lines/px) rather than blank `text` lines for predictable gaps.
 - **Always finish with `cut`** (or rely on the auto feed‑out) so the receipt tears cleanly.

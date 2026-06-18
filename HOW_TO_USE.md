@@ -98,6 +98,33 @@ is fed out automatically.
 
 ---
 
+## 4b. Aligning columns (monospace)
+
+For receipts where prices/quantities must line up, use a **monospace** font so every
+character is the same width. Set `"font": 4` on a `text` job (or on `/print/text`):
+
+```json
+{ "jobs": [
+  {"type":"text","text":"Coffee                3.50","font":4},
+  {"type":"text","text":"Muffin                2.00","font":4},
+  {"type":"text","text":"TOTAL                 5.50","font":4,"bold":true}
+]}
+```
+
+`font` values: `0` DEFAULT · `1` DEFAULT_BOLD · `2` SANS_SERIF · `3` SERIF ·
+**`4` MONOSPACE** · `5` CUSTOM. Default is `0`.
+
+**Workarounds if your service build doesn't yet support `font`** (no update required):
+
+1. **Pre-aligned text** — pad columns with spaces on your side so they line up, and send
+   plain `text` jobs. Keep lines to ~32 characters on 58 mm paper (~48 on 80 mm) at the
+   default size. Simplest option, works today.
+2. **Raw ESC/POS** — send an `escpos` job (or `POST /print/escpos`) with Base64-encoded
+   ESC/POS bytes that select the printer's built-in fixed-width font, followed by your text.
+   Use this when you specifically want a hardware monospace font.
+
+---
+
 ## 5. Call it from your web app (JavaScript)
 
 The printer accepts cross-origin requests, so a browser app can call it directly:
@@ -133,7 +160,7 @@ Put these objects inside the `"jobs"` array. `align` is `left` (default), `cente
 
 | `type` | Fields | Description |
 |--------|--------|-------------|
-| `text` | `text`, `size` (px, default 24), `align`, `bold`, `underline` | Print a line of text |
+| `text` | `text`, `size` (px, default 24), `align`, `bold`, `underline`, `font` (0–5, default 0; **4 = MONOSPACE**) | Print a line of text |
 | `feed` | `lines` (or `px`) | Advance the paper |
 | `barcode` | `content`, `width`, `height`, `textPosition`, `align`, `symbology` | Print a 1D barcode |
 | `qrcode` | `content`, `size`, `align` | Print a QR code |
@@ -154,7 +181,7 @@ Put these objects inside the `"jobs"` array. `align` is `left` (default), `cente
 | Method & path | Body | Purpose |
 |---------------|------|---------|
 | `GET /status` | — | Check the printer connection and status |
-| `POST /print/text` | plain text, or `{text,size,align,bold,underline}` | Print one line of text |
+| `POST /print/text` | plain text, or `{text,size,align,bold,underline,font}` | Print one line of text |
 | `POST /print/receipt` | `{"jobs":[ ... ]}` | Print a full receipt (recommended) |
 | `POST /print/image` | `{"base64":"...","align":"center"}` | Print an image / logo |
 | `POST /print/escpos` | `{"base64":"..."}` | Send raw ESC/POS commands |
@@ -248,6 +275,11 @@ status screen shows it is running, then retry.
 - **Prints but looks wrong** → adjust `size`, `align`, and use a `--------` separator line; keep
   line widths to ~32 characters for 58 mm paper.
 - **Need a logo at the top** → send an `image` job with your logo as Base64 (monochrome prints best).
+- **Extra blank space around an image** → the printer prints every row/column of the bitmap,
+  so any white/transparent margin baked into the source image (a logo on a tall canvas, a QR
+  with a wide quiet-zone, a padded signature) comes out as blank paper. **Crop the image to
+  its content before Base64-encoding it** — the service prints exactly what you send. (The
+  Android sample does this automatically; see `trimBlankMargins(...)` in `PrinterFragment.java`.)
 
 ---
 

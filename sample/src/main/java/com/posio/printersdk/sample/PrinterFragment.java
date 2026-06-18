@@ -135,11 +135,42 @@ public class PrinterFragment extends BaseFragment {
             bmp = BitmapFactory.decodeStream(in, null, opts);
         }
         if (bmp == null) return null;
+        bmp = trimBlankMargins(bmp);   // crop surrounding whitespace so the printer doesn't feed blank paper
         if (bmp.getWidth() > maxWidth) {
             int h = Math.max(1, Math.round(bmp.getHeight() * (maxWidth / (float) bmp.getWidth())));
             bmp = Bitmap.createScaledBitmap(bmp, maxWidth, h, true);
         }
         return bmp;
+    }
+
+    /**
+     * Crop the uniform near-white (or transparent) border around an image down to its content.
+     * Thermal printers print every row/column they receive, so blank margins baked into a logo,
+     * QR, or signature come out as extra blank space on the receipt. Trimming first removes it.
+     */
+    private static Bitmap trimBlankMargins(Bitmap src) {
+        int w = src.getWidth(), h = src.getHeight();
+        if (w == 0 || h == 0) return src;
+        int[] px = new int[w * h];
+        src.getPixels(px, 0, w, 0, 0, w, h);
+        final int WHITE = 245;   // pixels brighter than this (or fully transparent) count as blank
+        int minX = w, minY = h, maxX = -1, maxY = -1;
+        for (int y = 0; y < h; y++) {
+            int row = y * w;
+            for (int x = 0; x < w; x++) {
+                int c = px[row + x];
+                if (((c >>> 24) & 0xFF) == 0) continue;                      // transparent
+                int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
+                if (r >= WHITE && g >= WHITE && b >= WHITE) continue;         // near-white
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+        if (maxX < minX || maxY < minY) return src;                          // fully blank — leave as-is
+        if (minX == 0 && minY == 0 && maxX == w - 1 && maxY == h - 1) return src;
+        return Bitmap.createBitmap(src, minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     private static String text(EditText e) {
