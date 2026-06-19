@@ -46,8 +46,10 @@ public class PrinterFragment extends BaseFragment {
                         toast("Unsupported image (use PNG or JPEG)");
                         return;
                     }
+                    // Print only the image, with no trailing feed/cut — printEndAutoOut() would
+                    // advance the paper to the tear bar, which shows up as blank space after the
+                    // image. Skipping it ends the print tight against the artwork, like the QR demo.
                     int code = printer().printImage(bmp, 1, 1);   // 1=grayscale, 1=center
-                    if (code == PrinterResult.OK) printer().cutPaper();
                     toast(PrinterResult.message(code));
                 });
             });
@@ -153,8 +155,19 @@ public class PrinterFragment extends BaseFragment {
         if (w == 0 || h == 0) return src;
         int[] px = new int[w * h];
         src.getPixels(px, 0, w, 0, 0, w, h);
-        final int WHITE = 245;   // pixels brighter than this (or fully transparent) count as blank
-        int minX = w, minY = h, maxX = -1, maxY = -1;
+
+        // A pixel counts as blank if it is transparent or all channels are above WHITE.
+        // 200 (not 245) so light-gray / off-white backgrounds and faint scan tints are still
+        // treated as blank — otherwise they keep the margin and the printer feeds blank paper.
+        final int WHITE = 200;
+        // A whole row/column counts as blank unless it has at least this many content pixels.
+        // This swallows isolated JPEG/scan speckles in the margin that would otherwise pin an
+        // entire blank row in place. Scaled to the dimension so it stays a tiny fraction.
+        final int ROW_MIN = Math.max(1, w / 200);
+        final int COL_MIN = Math.max(1, h / 200);
+
+        int[] rowDark = new int[h];
+        int[] colDark = new int[w];
         for (int y = 0; y < h; y++) {
             int row = y * w;
             for (int x = 0; x < w; x++) {
@@ -162,12 +175,17 @@ public class PrinterFragment extends BaseFragment {
                 if (((c >>> 24) & 0xFF) == 0) continue;                      // transparent
                 int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
                 if (r >= WHITE && g >= WHITE && b >= WHITE) continue;         // near-white
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
+                rowDark[y]++;
+                colDark[x]++;
             }
         }
+
+        int minX = 0, maxX = w - 1, minY = 0, maxY = h - 1;
+        while (minY <= maxY && rowDark[minY] < ROW_MIN) minY++;              // crop blank rows off the top
+        while (maxY >= minY && rowDark[maxY] < ROW_MIN) maxY--;             // and the bottom
+        while (minX <= maxX && colDark[minX] < COL_MIN) minX++;            // and the left
+        while (maxX >= minX && colDark[maxX] < COL_MIN) maxX--;            // and the right
+
         if (maxX < minX || maxY < minY) return src;                          // fully blank — leave as-is
         if (minX == 0 && minY == 0 && maxX == w - 1 && maxY == h - 1) return src;
         return Bitmap.createBitmap(src, minX, minY, maxX - minX + 1, maxY - minY + 1);
