@@ -186,7 +186,7 @@ Put these objects inside the `"jobs"` array. `align` is `left` (default), `cente
 | `GET /status` | — | Check the printer connection and status |
 | `POST /print/text` | plain text, or `{text,size,align,bold,underline,font}` | Print one line of text |
 | `POST /print/receipt` | `{"jobs":[ ... ]}` | Print a full receipt (recommended) |
-| `POST /print/image` | `{"base64":"...","align":"center"}` | Print an image / logo |
+| `POST /print/image` | `{"base64":"...","type":0,"align":"center","feed":0,"cut":false}` | Print an image / logo. Prints **tight by default** (no trailing space). Optional `feed` (px to advance after) and `cut` (true = feed to tear bar + cut) let you control the trailing paper movement — nothing is forced. |
 | `POST /print/escpos` | `{"base64":"..."}` | Send raw ESC/POS commands |
 | `GET /scan` | query `?timeout=ms&trigger=true` | Wait for the next hardware scan |
 | `GET /scan/stream` | — | Live stream of scans (Server-Sent Events) |
@@ -210,6 +210,10 @@ on-screen camera. Your web app reads scans with plain HTTP, exactly like printin
 # Waits up to 30s; pass trigger=true to also fire the scan engine for the user.
 curl "http://192.168.10.115:8080/scan?trigger=true&timeout=30000"
 ```
+
+> When you call `/scan` with `trigger=true`, the service **automatically stops the scan engine**
+> once a code is read (or the call times out). You do not need a separate "stop" call — each
+> long-poll arms the engine, reads one code, and disarms it again.
 
 ```json
 {"timedOut": false, "code": "012345678905"}
@@ -283,6 +287,13 @@ status screen shows it is running, then retry.
   with a wide quiet-zone, a padded signature) comes out as blank paper. **Crop the image to
   its content before Base64-encoding it** — the service prints exactly what you send. (The
   Android sample does this automatically; see `trimBlankMargins(...)` in `PrinterFragment.java`.)
+- **Extra blank space *after* an image** → `POST /print/image` prints tight by default, with no
+  feed or cut afterward, so the image ends flush against the artwork (the same way a QR code
+  prints). When you *do* want the paper to advance, pass `"feed": <px>` and/or `"cut": true` in
+  the same request — the trailing movement is a parameter, not forced behavior.
+- **Scanner keeps scanning after a read** → fixed: `/scan?trigger=true` now stops the engine as
+  soon as it returns. If you are arming the engine yourself with `POST /scan/trigger {"open":true}`,
+  remember to send `{"open":false}` when done — that pair is fully under your control.
 
 ---
 

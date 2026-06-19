@@ -54,7 +54,7 @@ curl -X POST http://<device-ip>:8080/print/receipt \
 | Method & path | Body |
 |---|---|
 | `POST /print/text` | plain text, or `{text,size,align,bold,underline,font}` |
-| `POST /print/image` | `{base64,type,align}` |
+| `POST /print/image` | `{base64,type,align,feed,cut}` — prints tight; `feed`(px)/`cut` opt-in |
 | `POST /print/escpos` | `{base64}` |
 | `GET /status` | — (printer connection + status) |
 
@@ -153,9 +153,12 @@ printer.cutPaper();
 - **Logos/images:** PNG, pure black‑on‑white, width ≤ the printer dots — **≈384 px (58 mm)**,
   **≈576 px (80 mm)**. Height is unlimited. **Crop blank margins first** — the printer prints
   every blank row/column, so whitespace baked into a logo/QR/signature prints as extra space.
+  Images print **tight, with no trailing feed/cut** (like a QR); add `cutPaper()` / a `cut` job
+  only when you want the paper to advance for tearing.
 - **QR:** keep `size` ≈ 240–360 px so it scans reliably; center it.
 - **Spacing:** use `feed` (lines/px) rather than blank `text` lines for predictable gaps.
-- **Always finish with `cut`** (or rely on the auto feed‑out) so the receipt tears cleanly.
+- **Finish a receipt with `cut`** (or rely on the auto feed‑out) so it tears cleanly — but skip
+  it after a standalone image/QR if you want the output flush with the content.
 
 ---
 

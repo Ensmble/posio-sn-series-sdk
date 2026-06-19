@@ -158,9 +158,15 @@ printer.printImage(bitmap, 0, 1);   // bitmap, type, align
   quiet-zone, a padded signature) prints as **extra blank space**. Trim the image to its
   content first. The sample app shows this: `trimBlankMargins(...)` in
   [`PrinterFragment.java`](sample/src/main/java/com/posio/printersdk/sample/PrinterFragment.java).
+- **Extra space *after* the image** — `cutPaper()` (and the receipt auto feed-out) advances the
+  paper to the tear bar, which shows up as blank space below the image. To end tight against the
+  artwork — exactly like a QR code — **print the image and don't call `cutPaper()`**. The sample
+  prints images this way. Add `cutPaper()` / `feedPaper(px)` only when you actually want the
+  receipt to advance for tearing.
 
 > Right format in short: a **PNG**, sized to the paper width (e.g. 384 px wide for 58 mm),
-> pure black-and-white, printed with `type = 0`.
+> pure black-and-white, printed with `type = 0`, and **no trailing `cutPaper()`** if you want
+> it tight.
 
 ## Scanning
 
@@ -215,6 +221,8 @@ camera). Long-poll the next scan, or subscribe to a live stream:
 # wait for the next scan (and fire the scan engine for the user)
 curl "http://<device-ip>:8080/scan?trigger=true&timeout=30000"
 # -> {"timedOut":false,"code":"012345678905"}
+# The engine is armed for this one read and stopped automatically when the call returns,
+# so the scanner does not keep scanning afterwards.
 ```
 
 ```js
