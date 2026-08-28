@@ -42,7 +42,7 @@ afterEvaluate {
                 // JitPack overrides groupId with com.github.<user>; these are the defaults.
                 groupId = 'com.posio'
                 artifactId = 'printer-sdk'
-                version = '1.0.0'
+                version = '1.0.1'
             }
         }
     }

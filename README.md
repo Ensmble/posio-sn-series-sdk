@@ -46,7 +46,7 @@ dependencyResolutionManagement {
 
 ```groovy
 dependencies {
-    implementation 'com.github.Ensmble:posio-sn-series-sdk:1.0.0'
+    implementation 'com.github.Ensmble:posio-sn-series-sdk:1.0.1'
 }
 ```
 
